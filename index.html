@@ -6,13 +6,49 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Cat Clicker 2</title>
   <style>
-    .cat {
-      width: 100px;
+    * {
+      box-sizing: border-box;
     }
+
+    body, html {
+      display: flex;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
     .cat__image {
       width: 100%;
     }
+    .cat__name {
+      margin: 0;
+      padding: 0;
+    }
 
+    .cats-list {
+      width: 200px;
+    }
+      .cats-list .cat {
+        align-items: center;
+        border-bottom: 1px solid grey;
+        cursor: pointer;
+        display: flex;
+        padding: 0.5em;
+        width: 100%;
+      }
+
+      .cats-list .cat__image {
+        border-radius: 50%;
+        height: 40px;
+        width: 40px;
+        margin-right: 0.5em;
+      }
+
+    #current-cat {
+      border-left: 1px solid grey;
+      flex: 1;
+      padding: 0 1em;
+    }
     #current-cat .cat  {
       width: 400px;
     }
@@ -23,55 +59,91 @@
   <div class="cats-list"></div>
   <div id="current-cat"></div>
  
-  <script>
+  <script> 
+  
     var cats = [{
+      id: 1,
       name: "Cat 1",
       counter: 0,
       image: "cat1.jpg"
     }, {
+      id: 2,
       name: "Cat 2",
       counter: 0,
       image: "cat2.jpg"
     }]
+    
+    var octopus = {
+      init() {
+        this.currentCatId = 1
+        viewCatsList.init()
+        viewCurrentCat.init()
+      },
 
-    var catsList = document.querySelectorAll('.cats-list')[0]
-    catsList.innerHTML = cats.reduce((acc, cat, i) => acc + renderCatListItem(cat, i), "")
+      onClickCatListItem(catId) {
+        this.currentCatId = catId        
+        viewCurrentCat.render()
+      },
 
-    document.getElementById("current-cat").innerHTML = renderCat(cats[0], 0)
+      onClickCurrentCat(catId) {
+        var i = cats.findIndex(c => c.id == catId);
+        cats[i].counter++
+        viewCurrentCat.render()
+      },
 
-    function renderCatListItem (cat, i) {
-      return `
-      <div class="cat" onclick="onClickCatListItem(${i})">
-        <p class="cat__name">${cat.name}</p>
-        <img src="images/${cat.image}" alt="${cat.name}" class="cat__image" />
-        <div class="cat__counter">${cat.counter}</div>
-      </div>
-      `
+      incrementCounterCurrentCat() {
+        var currentCat = this.getCurrentCat()
+        currentCat.counter++
+      },
+
+      getCurrentCat() {
+        return cats.find(c => c.id == this.currentCatId);
+      },
+
+      getAllCats() {
+        return cats;
+      }
     }
 
-    function renderCat(cat, i) {
-      return `
-      <div class="cat" onclick="onClickCurrentCat(${i})">
-        <h2 class="cat__name">${cat.name}</h2>
-        <img src="images/${cat.image}" alt="${cat.name}" class="cat__image" />
-        <div class="cat__counter">${cat.counter}</div>
-      </div>
-      `
+    var viewCatsList = {
+      init() {
+        this.catsList = document.querySelector('.cats-list')
+        this.render()
+      },
+
+      render (cats) {
+        this.catsList.innerHTML = octopus.getAllCats()
+          .reduce((acc, cat, i) => acc + this.template(cat), "")
+      },
+      
+      template: (cat) => `
+        <div class="cat" onclick="octopus.onClickCatListItem(${cat.id})">
+          <img src="images/${cat.image}" alt="${cat.name}" class="cat__image" />
+          <p class="cat__name">${cat.name}</p>
+        </div>
+      `,
     }
 
-    function onClickCatListItem(i) {
-      document.getElementById("current-cat").innerHTML = renderCat(cats[i], i)
-    }
+    var viewCurrentCat = {
+      init() {
+        this.catdom = document.getElementById("current-cat")
+        this.render()
+      },
 
-    function onClickCurrentCat(i) {
-      cats[i].counter = cats[i].counter + 1
-      document.querySelector("#current-cat .cat__counter").innerHTML = cats[i].counter
-      updateCatInList(i)
-    }
+      render() {
+        var cat = octopus.getCurrentCat()
+        this.catdom.innerHTML = `
+        <div class="cat" onclick="octopus.onClickCurrentCat(${cat.id})">
+          <h2 class="cat__name">${cat.name}</h2>
+          <img src="images/${cat.image}" alt="${cat.name}" class="cat__image" />
+          <div class="cat__counter">Cat clicks ${cat.counter}</div>
+        </div>
+        `
+      }
+    
+    }    
 
-    function updateCatInList (i) {
-      document.querySelectorAll(".cats-list .cat__counter")[i].innerHTML = cats[i].counter
-    }
+    octopus.init()
 
   </script>
 </body>

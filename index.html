@@ -7,36 +7,72 @@
   <title>Cat Clicker 2</title>
   <style>
     .cat {
-      width: 200px;
+      width: 100px;
     }
     .cat__image {
       width: 100%;
     }
 
-
+    #current-cat .cat  {
+      width: 400px;
+    }
+    
   </style>
 </head>
 <body>
-  <div class="cat">
-    <p class="cat__name">Cat 1</p>
-    <img src="images/cat2.jpg" alt="Cat 1" class="cat__image">
-    <div class="cat__counter">0</div>
-  </div>
-
-  <div class="cat">
-    <p class="cat__name">Cat 2</p>
-    <img src="images/cat2.jpg" alt="Cat 2" class="cat__image">
-    <div class="cat__counter">0</div>
-  </div>
-  
+  <div class="cats-list"></div>
+  <div id="current-cat"></div>
+ 
   <script>
-    var cats = document.querySelectorAll('.cat');
-    cats.forEach(cat => {
-      var image = cat.getElementsByClassName("cat__image")[0].addEventListener("click", function() {
-        var counter = cat.getElementsByClassName("cat__counter")[0]
-        counter.innerHTML = parseInt(counter.innerHTML) + 1;
-      })
-    });
+    var cats = [{
+      name: "Cat 1",
+      counter: 0,
+      image: "cat1.jpg"
+    }, {
+      name: "Cat 2",
+      counter: 0,
+      image: "cat2.jpg"
+    }]
+
+    var catsList = document.querySelectorAll('.cats-list')[0]
+    catsList.innerHTML = cats.reduce((acc, cat, i) => acc + renderCatListItem(cat, i), "")
+
+    document.getElementById("current-cat").innerHTML = renderCat(cats[0], 0)
+
+    function renderCatListItem (cat, i) {
+      return `
+      <div class="cat" onclick="onClickCatListItem(${i})">
+        <p class="cat__name">${cat.name}</p>
+        <img src="images/${cat.image}" alt="${cat.name}" class="cat__image" />
+        <div class="cat__counter">${cat.counter}</div>
+      </div>
+      `
+    }
+
+    function renderCat(cat, i) {
+      return `
+      <div class="cat" onclick="onClickCurrentCat(${i})">
+        <h2 class="cat__name">${cat.name}</h2>
+        <img src="images/${cat.image}" alt="${cat.name}" class="cat__image" />
+        <div class="cat__counter">${cat.counter}</div>
+      </div>
+      `
+    }
+
+    function onClickCatListItem(i) {
+      document.getElementById("current-cat").innerHTML = renderCat(cats[i], i)
+    }
+
+    function onClickCurrentCat(i) {
+      cats[i].counter = cats[i].counter + 1
+      document.querySelector("#current-cat .cat__counter").innerHTML = cats[i].counter
+      updateCatInList(i)
+    }
+
+    function updateCatInList (i) {
+      document.querySelectorAll(".cats-list .cat__counter")[i].innerHTML = cats[i].counter
+    }
+
   </script>
 </body>
 </html>
